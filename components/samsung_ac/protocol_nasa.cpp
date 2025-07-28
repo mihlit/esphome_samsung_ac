@@ -442,6 +442,14 @@ namespace esphome
                 packet.messages.push_back(lr_swing);
             }
 
+            if (request.custom_switch_message && request.custom_switch_value)
+            {
+                MessageSet custom_switch((MessageNumber)request.custom_switch_message.value());
+                custom_switch.value = request.custom_switch_value.value() ? 1 : 0;
+                packet.messages.push_back(custom_switch);
+                ESP_LOGI(TAG, "Pushing custom switch %u at 0x%X for %s", custom_switch.value, request.custom_switch_message.value(), address.c_str());
+            }
+
             if (packet.messages.size() == 0)
                 return;
 
@@ -504,7 +512,7 @@ namespace esphome
             }
         }
         
-        void process_messageset(std::string source, std::string dest, MessageSet &message, optional<std::set<uint16_t>> &custom, MessageTarget *target)
+        void process_messageset(std::string source, std::string dest, MessageSet &message, optional<std::set<uint16_t>> &custom, optional<std::set<uint16_t>> &custom_switches, MessageTarget *target)
         {
             if (debug_mqtt_connected())
             {
@@ -525,6 +533,11 @@ namespace esphome
             if (custom && custom.value().find((uint16_t)message.messageNumber) != custom.value().end())
             {
                 target->set_custom_sensor(source, (uint16_t)message.messageNumber, (float)message.value);
+            }
+            
+            if (custom_switches && custom_switches.value().find((uint16_t)message.messageNumber) != custom_switches.value().end())
+            {
+                target->set_custom_switch(source, (uint16_t)message.messageNumber, message.value != 0);
             }
             
             target->getValueForCustomClimate(source, (int16_t) message.messageNumber, message.value);
@@ -772,9 +785,10 @@ namespace esphome
                 return;
 
             optional<std::set<uint16_t>> custom = target->get_custom_sensors(source);
+            optional<std::set<uint16_t>> custom_switches = target->get_custom_switches(source);
             for (auto &message : packet_.messages)
             {
-                process_messageset(source, dest, message, custom, target);
+                process_messageset(source, dest, message, custom, custom_switches, target);
             }
         }
 

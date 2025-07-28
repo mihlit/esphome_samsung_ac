@@ -77,6 +77,12 @@ namespace esphome
       sensor::Sensor *sensor;
     };
 
+    struct Samsung_AC_Custom_Switch
+    {
+      uint16_t message_number;
+      Samsung_AC_Switch *switch_device;
+    };
+
     class Samsung_AC_Device
     {
     public:
@@ -95,6 +101,7 @@ namespace esphome
       Samsung_AC_Mode_Select *mode{nullptr};
       Samsung_AC_Climate *climate{nullptr};
       std::vector<Samsung_AC_Sensor> custom_sensors;
+      std::vector<Samsung_AC_Custom_Switch> custom_switches;
       std::vector<Samsung_AC_CustClim*> custom_climates;
       float room_temperature_offset{0};
 
@@ -123,6 +130,29 @@ namespace esphome
         std::set<uint16_t> numbers;
         for (auto &sensor : custom_sensors)
           numbers.insert(sensor.message_number);
+        return numbers;
+      }
+
+      void add_custom_switch(int message_number, Samsung_AC_Switch *switch_device)
+      {
+        Samsung_AC_Custom_Switch cust_switch;
+        cust_switch.message_number = (uint16_t)message_number;
+        cust_switch.switch_device = switch_device;
+        cust_switch.switch_device->write_state_ = [this, message_number](bool value)
+        {
+          ProtocolRequest request;
+          request.custom_switch_message = message_number;
+          request.custom_switch_value = value;
+          publish_request(request);
+        };
+        custom_switches.push_back(std::move(cust_switch));
+      }
+
+      std::set<uint16_t> get_custom_switches()
+      {
+        std::set<uint16_t> numbers;
+        for (auto &custom_switch : custom_switches)
+          numbers.insert(custom_switch.message_number);
         return numbers;
       }
 
@@ -321,6 +351,13 @@ namespace esphome
         for (auto &sensor : custom_sensors)
           if (sensor.message_number == message_number)
             sensor.sensor->publish_state(value);
+      }
+
+      void update_custom_switch(uint16_t message_number, bool value)
+      {
+        for (auto &custom_switch : custom_switches)
+          if (custom_switch.message_number == message_number)
+            custom_switch.switch_device->publish_state(value);
       }
 
       void publish_request(ProtocolRequest &request)

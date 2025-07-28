@@ -57,6 +57,8 @@ CONF_DEVICE_ENERGY_PRODUCED = "energy_produced"
 CONF_DEVICE_CUSTOM = "custom_sensor"
 CONF_DEVICE_CUSTOM_MESSAGE = "message"
 CONF_DEVICE_CUSTOM_RAW_FILTERS = "raw_filters"
+CONF_DEVICE_CUSTOM_SWITCH = "custom_switch"
+CONF_DEVICE_CUSTOM_SWITCH_MESSAGE = "message"
 CONF_DEVICE_CUSTOMCLIMATE = "custom_climate"
 CONF_DEVICE_CUSTOMCLIMATE_status_addr = "status_addr"
 CONF_DEVICE_CUSTOMCLIMATE_set_addr = "set_addr"
@@ -133,6 +135,10 @@ CAPABILITIES_SCHEMA = (
 
 CUSTOM_SENSOR_SCHEMA = sensor.sensor_schema().extend({
     cv.Required(CONF_DEVICE_CUSTOM_MESSAGE): cv.hex_int,
+})
+
+CUSTOM_SWITCH_SCHEMA = switch.switch_schema(Samsung_AC_Switch).extend({
+    cv.Required(CONF_DEVICE_CUSTOM_SWITCH_MESSAGE): cv.hex_int,
 })
 
 
@@ -230,6 +236,7 @@ DEVICE_SCHEMA = (
             cv.Optional(CONF_DEVICE_MODE): SELECT_MODE_SCHEMA,
             cv.Optional(CONF_DEVICE_CLIMATE): CLIMATE_SCHEMA,
             cv.Optional(CONF_DEVICE_CUSTOM, default=[]): cv.ensure_list(CUSTOM_SENSOR_SCHEMA),
+            cv.Optional(CONF_DEVICE_CUSTOM_SWITCH, default=[]): cv.ensure_list(CUSTOM_SWITCH_SCHEMA),
 
             # keep CUSTOM_SENSOR_KEYS in sync with these
             cv.Optional(CONF_DEVICE_WATER_TEMPERATURE): temperature_sensor_schema(0x4237),
@@ -401,6 +408,12 @@ async def to_code(config):
                 sens = await sensor.new_sensor(cust_sens)
                 cg.add(var_dev.add_custom_sensor(
                     cust_sens[CONF_DEVICE_CUSTOM_MESSAGE], sens))
+
+        if CONF_DEVICE_CUSTOM_SWITCH in device:
+            for cust_switch in device[CONF_DEVICE_CUSTOM_SWITCH]:
+                switch_device = await switch.new_switch(cust_switch)
+                cg.add(var_dev.add_custom_switch(
+                    cust_switch[CONF_DEVICE_CUSTOM_SWITCH_MESSAGE], switch_device))
 
         for key in CUSTOM_SENSOR_KEYS:
             if key in device:

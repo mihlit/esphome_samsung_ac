@@ -427,6 +427,12 @@ namespace esphome
                 ESP_LOGW(TAG, "change swingmode is currently not implemented");
             }
 
+            if (request.custom_switch_message && request.custom_switch_value)
+            {
+                ESP_LOGE(TAG, "Custom switches not supported by non-NASA devices");
+                return;
+            }
+
             nonnasa_requests.push(req);
         }
 
