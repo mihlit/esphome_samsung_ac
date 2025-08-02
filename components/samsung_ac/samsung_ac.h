@@ -159,6 +159,21 @@ namespace esphome
         if (dev != nullptr)
           dev->update_custom_switch(message_number, value);
       }
+
+      optional<std::set<uint16_t>> /*MessageTarget::*/ get_custom_numbers(const std::string address) override
+      {
+        Samsung_AC_Device *dev = find_device(address);
+        if (dev != nullptr)
+          return optional<std::set<uint16_t>>(dev->get_custom_numbers());
+        return optional<std::set<uint16_t>>();
+      }
+      
+      void /*MessageTarget::*/ set_custom_number(const std::string address, uint16_t message_number, float value) override
+      {
+        Samsung_AC_Device *dev = find_device(address);
+        if (dev != nullptr)
+          dev->update_custom_number(message_number, value);
+      }
       
       Samsung_AC_Device *find_device(const std::string address)
       {

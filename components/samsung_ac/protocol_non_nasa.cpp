@@ -433,6 +433,12 @@ namespace esphome
                 return;
             }
 
+            if (request.custom_number_message && request.custom_number_value)
+            {
+                ESP_LOGE(TAG, "Custom numbers not supported by non-NASA devices");
+                return;
+            }
+
             nonnasa_requests.push(req);
         }
 

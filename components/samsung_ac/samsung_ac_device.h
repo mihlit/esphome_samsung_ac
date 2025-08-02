@@ -83,6 +83,12 @@ namespace esphome
       Samsung_AC_Switch *switch_device;
     };
 
+    struct Samsung_AC_Custom_Number
+    {
+      uint16_t message_number;
+      Samsung_AC_Number *number_device;
+    };
+
     class Samsung_AC_Device
     {
     public:
@@ -102,6 +108,7 @@ namespace esphome
       Samsung_AC_Climate *climate{nullptr};
       std::vector<Samsung_AC_Sensor> custom_sensors;
       std::vector<Samsung_AC_Custom_Switch> custom_switches;
+      std::vector<Samsung_AC_Custom_Number> custom_numbers;
       std::vector<Samsung_AC_CustClim*> custom_climates;
       float room_temperature_offset{0};
 
@@ -153,6 +160,29 @@ namespace esphome
         std::set<uint16_t> numbers;
         for (auto &custom_switch : custom_switches)
           numbers.insert(custom_switch.message_number);
+        return numbers;
+      }
+
+      void add_custom_number(int message_number, Samsung_AC_Number *number_device)
+      {
+        Samsung_AC_Custom_Number cust_number;
+        cust_number.message_number = (uint16_t)message_number;
+        cust_number.number_device = number_device;
+        cust_number.number_device->write_state_ = [this, message_number](float value)
+        {
+          ProtocolRequest request;
+          request.custom_number_message = message_number;
+          request.custom_number_value = value;
+          publish_request(request);
+        };
+        custom_numbers.push_back(std::move(cust_number));
+      }
+
+      std::set<uint16_t> get_custom_numbers()
+      {
+        std::set<uint16_t> numbers;
+        for (auto &custom_number : custom_numbers)
+          numbers.insert(custom_number.message_number);
         return numbers;
       }
 
@@ -358,6 +388,13 @@ namespace esphome
         for (auto &custom_switch : custom_switches)
           if (custom_switch.message_number == message_number)
             custom_switch.switch_device->publish_state(value);
+      }
+
+      void update_custom_number(uint16_t message_number, float value)
+      {
+        for (auto &custom_number : custom_numbers)
+          if (custom_number.message_number == message_number)
+            custom_number.number_device->publish_state(value);
       }
 
       void publish_request(ProtocolRequest &request)

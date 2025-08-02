@@ -79,6 +79,8 @@ namespace esphome
             virtual void set_custom_sensor(const std::string address, uint16_t message_number, float value) = 0;
             virtual optional<std::set<uint16_t>> get_custom_switches(const std::string address) = 0;
             virtual void set_custom_switch(const std::string address, uint16_t message_number, bool value) = 0;
+            virtual optional<std::set<uint16_t>> get_custom_numbers(const std::string address) = 0;
+            virtual void set_custom_number(const std::string address, uint16_t message_number, float value) = 0;
             virtual void getValueForCustomClimate(const std::string source, uint16_t messageNumber, long value) = 0;
         };
 
@@ -94,6 +96,8 @@ namespace esphome
             optional<Samsung_AC_CustClim *> caller; // used to analyze custom addresses
             optional<uint16_t> custom_switch_message;
             optional<bool> custom_switch_value;
+            optional<uint16_t> custom_number_message;
+            optional<float> custom_number_value;
         };
 
         class Protocol

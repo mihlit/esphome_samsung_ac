@@ -59,6 +59,8 @@ CONF_DEVICE_CUSTOM_MESSAGE = "message"
 CONF_DEVICE_CUSTOM_RAW_FILTERS = "raw_filters"
 CONF_DEVICE_CUSTOM_SWITCH = "custom_switch"
 CONF_DEVICE_CUSTOM_SWITCH_MESSAGE = "message"
+CONF_DEVICE_CUSTOM_NUMBER = "custom_number"
+CONF_DEVICE_CUSTOM_NUMBER_MESSAGE = "message"
 CONF_DEVICE_CUSTOMCLIMATE = "custom_climate"
 CONF_DEVICE_CUSTOMCLIMATE_status_addr = "status_addr"
 CONF_DEVICE_CUSTOMCLIMATE_set_addr = "set_addr"
@@ -139,6 +141,10 @@ CUSTOM_SENSOR_SCHEMA = sensor.sensor_schema().extend({
 
 CUSTOM_SWITCH_SCHEMA = switch.switch_schema(Samsung_AC_Switch).extend({
     cv.Required(CONF_DEVICE_CUSTOM_SWITCH_MESSAGE): cv.hex_int,
+})
+
+CUSTOM_NUMBER_SCHEMA = number.number_schema(Samsung_AC_Number).extend({
+    cv.Required(CONF_DEVICE_CUSTOM_NUMBER_MESSAGE): cv.hex_int,
 })
 
 
@@ -237,6 +243,7 @@ DEVICE_SCHEMA = (
             cv.Optional(CONF_DEVICE_CLIMATE): CLIMATE_SCHEMA,
             cv.Optional(CONF_DEVICE_CUSTOM, default=[]): cv.ensure_list(CUSTOM_SENSOR_SCHEMA),
             cv.Optional(CONF_DEVICE_CUSTOM_SWITCH, default=[]): cv.ensure_list(CUSTOM_SWITCH_SCHEMA),
+            cv.Optional(CONF_DEVICE_CUSTOM_NUMBER, default=[]): cv.ensure_list(CUSTOM_NUMBER_SCHEMA),
 
             # keep CUSTOM_SENSOR_KEYS in sync with these
             cv.Optional(CONF_DEVICE_WATER_TEMPERATURE): temperature_sensor_schema(0x4237),
@@ -414,6 +421,12 @@ async def to_code(config):
                 switch_device = await switch.new_switch(cust_switch)
                 cg.add(var_dev.add_custom_switch(
                     cust_switch[CONF_DEVICE_CUSTOM_SWITCH_MESSAGE], switch_device))
+
+        if CONF_DEVICE_CUSTOM_NUMBER in device:
+            for cust_number in device[CONF_DEVICE_CUSTOM_NUMBER]:
+                number_device = await number.new_number(cust_number)
+                cg.add(var_dev.add_custom_number(
+                    cust_number[CONF_DEVICE_CUSTOM_NUMBER_MESSAGE], number_device))
 
         for key in CUSTOM_SENSOR_KEYS:
             if key in device:
