@@ -1,5 +1,6 @@
 #include "esphome/core/log.h"
 #include "samsung_ac.h"
+#include "samsung_ac_modbus_controller.h"
 #include "debug_mqtt.h"
 #include "util.h"
 #include <vector>
@@ -125,5 +126,13 @@ namespace esphome
     }
 
     float Samsung_AC::get_setup_priority() const { return setup_priority::DATA; }
+
+    void Samsung_AC::notify_modbus_controllers(const std::string& device_address, uint16_t message_number, float value)
+    {
+      for (auto *controller : modbus_controllers_)
+      {
+        controller->on_nasa_message(device_address, message_number, value);
+      }
+    }
   } // namespace samsung_ac
 } // namespace esphome

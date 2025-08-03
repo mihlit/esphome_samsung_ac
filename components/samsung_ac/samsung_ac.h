@@ -146,13 +146,7 @@ namespace esphome
           dev->update_custom_sensor(message_number, value);
       }
 
-      void /*MessageTarget::*/ notify_modbus_controllers(const std::string& device_address, uint16_t message_number, float value) override
-      {
-        for (auto *controller : modbus_controllers_)
-        {
-          controller->on_nasa_message(device_address, message_number, value);
-        }
-      }
+      void /*MessageTarget::*/ notify_modbus_controllers(const std::string& device_address, uint16_t message_number, float value) override;
 
       // Register modbus controllers
       void register_modbus_controller(Samsung_AC_Modbus_Controller *controller)
