@@ -15,11 +15,12 @@ namespace esphome
     void Samsung_AC_Modbus_Controller::setup()
     {
       ESP_LOGCONFIG(MODBUS_TAG, "Setting up Samsung AC Modbus Controller...");
+      ESP_LOGCONFIG(MODBUS_TAG, "  Initial component counts - Sensors: %d, Switches: %d, Numbers: %d", 
+                    sensors_.size(), switches_.size(), numbers_.size());
       
       if (samsung_ac_ == nullptr)
       {
         ESP_LOGE(MODBUS_TAG, "Samsung AC component not set! Please configure samsung_ac_id.");
-        this->mark_failed();
         return;
       }
 
@@ -28,24 +29,24 @@ namespace esphome
       {
         auto key = std::make_pair(sensor->get_device_address(), sensor->get_nasa_address());
         register_map_[key].push_back(sensor);
-        ESP_LOGD(MODBUS_TAG, "Registered sensor for device %s, NASA address 0x%04X", 
-                 sensor->get_device_address().c_str(), sensor->get_nasa_address());
+        ESP_LOGCONFIG(MODBUS_TAG, "Setup: Registered sensor for device %s, NASA address 0x%04X", 
+                     sensor->get_device_address().c_str(), sensor->get_nasa_address());
       }
 
       for (auto *switch_ : switches_)
       {
         auto key = std::make_pair(switch_->get_device_address(), switch_->get_nasa_address());
         register_map_[key].push_back(switch_);
-        ESP_LOGD(MODBUS_TAG, "Registered switch for device %s, NASA address 0x%04X", 
-                 switch_->get_device_address().c_str(), switch_->get_nasa_address());
+        ESP_LOGCONFIG(MODBUS_TAG, "Setup: Registered switch for device %s, NASA address 0x%04X", 
+                     switch_->get_device_address().c_str(), switch_->get_nasa_address());
       }
 
       for (auto *number : numbers_)
       {
         auto key = std::make_pair(number->get_device_address(), number->get_nasa_address());
         register_map_[key].push_back(number);
-        ESP_LOGD(MODBUS_TAG, "Registered number for device %s, NASA address 0x%04X", 
-                 number->get_device_address().c_str(), number->get_nasa_address());
+        ESP_LOGCONFIG(MODBUS_TAG, "Setup: Registered number for device %s, NASA address 0x%04X", 
+                     number->get_device_address().c_str(), number->get_nasa_address());
       }
 
       // Register this controller with the Samsung AC component
@@ -84,18 +85,33 @@ namespace esphome
     {
       sensors_.push_back(sensor);
       sensor->set_modbus_controller(this);
+      ESP_LOGCONFIG(MODBUS_TAG, "REGISTRATION: Added sensor to controller - total sensors: %d", sensors_.size());
+      ESP_LOGD(MODBUS_TAG, "Registered sensor: %s (device: %s, address: 0x%04X)", 
+               sensor->get_name().c_str(), 
+               sensor->get_device_address().c_str(), 
+               sensor->get_register_address());
     }
 
     void Samsung_AC_Modbus_Controller::register_switch(Samsung_AC_Modbus_Switch *switch_)
     {
       switches_.push_back(switch_);
       switch_->set_modbus_controller(this);
+      ESP_LOGCONFIG(MODBUS_TAG, "REGISTRATION: Added switch to controller - total switches: %d", switches_.size());
+      ESP_LOGD(MODBUS_TAG, "Registered switch: %s (device: %s, address: 0x%04X)", 
+               switch_->get_name().c_str(), 
+               switch_->get_device_address().c_str(), 
+               switch_->get_register_address());
     }
 
     void Samsung_AC_Modbus_Controller::register_number(Samsung_AC_Modbus_Number *number)
     {
       numbers_.push_back(number);
       number->set_modbus_controller(this);
+      ESP_LOGCONFIG(MODBUS_TAG, "REGISTRATION: Added number to controller - total numbers: %d", numbers_.size());
+      ESP_LOGD(MODBUS_TAG, "Registered number: %s (device: %s, address: 0x%04X)", 
+               number->get_name().c_str(), 
+               number->get_device_address().c_str(), 
+               number->get_register_address());
     }
 
     // TODO: Implement Samsung_AC_Modbus_Select when needed

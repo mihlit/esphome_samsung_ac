@@ -91,14 +91,14 @@ async def to_code(config):
     # Get the Samsung AC component
     samsung_ac = await cg.get_variable(config[CONF_SAMSUNG_AC_ID])
     cg.add(var.set_samsung_ac(samsung_ac))
+    
+    # Register the modbus controller with the Samsung AC component to receive NASA messages
+    cg.add(samsung_ac.register_modbus_controller(var))
 
 
 # Helper function for component setup
 async def setup_modbus_component(var, config, controller_var):
     """Common setup for modbus components"""
-    # Create the register config
-    register_config = modbus_register_config_struct(config)
-    
     # Initialize the component with the config
     cg.add(var.set_register_address(config[CONF_REGISTER_ADDRESS]))
     cg.add(var.set_device_address(config[CONF_DEVICE_ADDRESS]))
@@ -108,11 +108,10 @@ async def setup_modbus_component(var, config, controller_var):
     cg.add(var.set_offset(config[CONF_OFFSET]))
     cg.add(var.set_bitmask(config[CONF_BITMASK]))
     
-    # Register with the controller
-    component_type = type(var.type).__name__
-    if "Sensor" in component_type:
+    # Register with the controller - use direct type checking
+    if var.type == Samsung_AC_Modbus_Sensor:
         cg.add(controller_var.register_sensor(var))
-    elif "Switch" in component_type:
+    elif var.type == Samsung_AC_Modbus_Switch:
         cg.add(controller_var.register_switch(var))
-    elif "Number" in component_type:
+    elif var.type == Samsung_AC_Modbus_Number:
         cg.add(controller_var.register_number(var)) 
