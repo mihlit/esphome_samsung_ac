@@ -31,9 +31,9 @@ namespace esphome
       Samsung_AC_Modbus_Sensor(ModbusRegisterConfig config) 
         : ModbusRegisterItem(config) {}
 
-      void setup() override;
-      void dump_config() override;
-      float get_setup_priority() const override { return setup_priority::DATA; }
+      void setup();
+      void dump_config();
+      float get_setup_priority() const { return setup_priority::DATA; }
 
       // Set the modbus controller that manages this sensor
       void set_modbus_controller(Samsung_AC_Modbus_Controller *controller) 

@@ -19,7 +19,7 @@ namespace esphome
     class Samsung_AC_Modbus_Sensor;
     class Samsung_AC_Modbus_Switch;
     class Samsung_AC_Modbus_Number;
-    class Samsung_AC_Modbus_Select;
+    // class Samsung_AC_Modbus_Select; // TODO: Implement when needed
 
     enum class ModbusRegisterType : uint8_t
     {
@@ -96,7 +96,7 @@ namespace esphome
       void register_sensor(Samsung_AC_Modbus_Sensor *sensor);
       void register_switch(Samsung_AC_Modbus_Switch *switch_);
       void register_number(Samsung_AC_Modbus_Number *number);
-      void register_select(Samsung_AC_Modbus_Select *select);
+      // void register_select(Samsung_AC_Modbus_Select *select); // TODO: Implement when needed
 
       // Handle incoming data from Samsung AC
       void on_nasa_message(const std::string& device_address, uint16_t message_number, float value);
@@ -118,7 +118,7 @@ namespace esphome
       std::vector<Samsung_AC_Modbus_Sensor*> sensors_;
       std::vector<Samsung_AC_Modbus_Switch*> switches_;
       std::vector<Samsung_AC_Modbus_Number*> numbers_;
-      std::vector<Samsung_AC_Modbus_Select*> selects_;
+      // std::vector<Samsung_AC_Modbus_Select*> selects_; // TODO: Implement when needed
 
       // Convert between modbus and internal formats
       float convert_from_modbus(uint32_t raw_value, ModbusValueType value_type);

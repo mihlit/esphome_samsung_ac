@@ -10,15 +10,15 @@ namespace esphome
 {
   namespace samsung_ac
   {
-    static const char *const TAG = "samsung_ac.modbus_controller";
+    static const char *const MODBUS_TAG = "samsung_ac.modbus_controller";
 
     void Samsung_AC_Modbus_Controller::setup()
     {
-      ESP_LOGCONFIG(TAG, "Setting up Samsung AC Modbus Controller...");
+      ESP_LOGCONFIG(MODBUS_TAG, "Setting up Samsung AC Modbus Controller...");
       
       if (samsung_ac_ == nullptr)
       {
-        ESP_LOGE(TAG, "Samsung AC component not set! Please configure samsung_ac_id.");
+        ESP_LOGE(MODBUS_TAG, "Samsung AC component not set! Please configure samsung_ac_id.");
         this->mark_failed();
         return;
       }
@@ -28,7 +28,7 @@ namespace esphome
       {
         auto key = std::make_pair(sensor->get_device_address(), sensor->get_nasa_address());
         register_map_[key].push_back(sensor);
-        ESP_LOGD(TAG, "Registered sensor for device %s, NASA address 0x%04X", 
+        ESP_LOGD(MODBUS_TAG, "Registered sensor for device %s, NASA address 0x%04X", 
                  sensor->get_device_address().c_str(), sensor->get_nasa_address());
       }
 
@@ -36,7 +36,7 @@ namespace esphome
       {
         auto key = std::make_pair(switch_->get_device_address(), switch_->get_nasa_address());
         register_map_[key].push_back(switch_);
-        ESP_LOGD(TAG, "Registered switch for device %s, NASA address 0x%04X", 
+        ESP_LOGD(MODBUS_TAG, "Registered switch for device %s, NASA address 0x%04X", 
                  switch_->get_device_address().c_str(), switch_->get_nasa_address());
       }
 
@@ -44,14 +44,14 @@ namespace esphome
       {
         auto key = std::make_pair(number->get_device_address(), number->get_nasa_address());
         register_map_[key].push_back(number);
-        ESP_LOGD(TAG, "Registered number for device %s, NASA address 0x%04X", 
+        ESP_LOGD(MODBUS_TAG, "Registered number for device %s, NASA address 0x%04X", 
                  number->get_device_address().c_str(), number->get_nasa_address());
       }
 
       // Register this controller with the Samsung AC component
       samsung_ac_->register_modbus_controller(this);
 
-      ESP_LOGCONFIG(TAG, "Samsung AC Modbus Controller setup complete. Registered %d components.", 
+      ESP_LOGCONFIG(MODBUS_TAG, "Samsung AC Modbus Controller setup complete. Registered %d components.", 
                     register_map_.size());
     }
 
@@ -59,24 +59,24 @@ namespace esphome
     {
       // The actual data updates come from the Samsung AC protocol processing
       // This method is called periodically but the real work happens in on_nasa_message
-      ESP_LOGVV(TAG, "Modbus controller update - waiting for NASA messages");
+      ESP_LOGVV(MODBUS_TAG, "Modbus controller update - waiting for NASA messages");
     }
 
     void Samsung_AC_Modbus_Controller::dump_config()
     {
-      ESP_LOGCONFIG(TAG, "Samsung AC Modbus Controller:");
-      ESP_LOGCONFIG(TAG, "  Registered components: %d", register_map_.size());
-      ESP_LOGCONFIG(TAG, "  Sensors: %d", sensors_.size());
-      ESP_LOGCONFIG(TAG, "  Switches: %d", switches_.size());
-      ESP_LOGCONFIG(TAG, "  Numbers: %d", numbers_.size());
+      ESP_LOGCONFIG(MODBUS_TAG, "Samsung AC Modbus Controller:");
+      ESP_LOGCONFIG(MODBUS_TAG, "  Registered components: %d", register_map_.size());
+      ESP_LOGCONFIG(MODBUS_TAG, "  Sensors: %d", sensors_.size());
+      ESP_LOGCONFIG(MODBUS_TAG, "  Switches: %d", switches_.size());
+      ESP_LOGCONFIG(MODBUS_TAG, "  Numbers: %d", numbers_.size());
       
       if (samsung_ac_ == nullptr)
       {
-        ESP_LOGCONFIG(TAG, "  Samsung AC: NOT SET");
+        ESP_LOGCONFIG(MODBUS_TAG, "  Samsung AC: NOT SET");
       }
       else
       {
-        ESP_LOGCONFIG(TAG, "  Samsung AC: Connected");
+        ESP_LOGCONFIG(MODBUS_TAG, "  Samsung AC: Connected");
       }
     }
 
@@ -98,11 +98,12 @@ namespace esphome
       number->set_modbus_controller(this);
     }
 
-    void Samsung_AC_Modbus_Controller::register_select(Samsung_AC_Modbus_Select *select)
-    {
-      selects_.push_back(select);
-      select->set_modbus_controller(this);
-    }
+    // TODO: Implement Samsung_AC_Modbus_Select when needed
+    // void Samsung_AC_Modbus_Controller::register_select(Samsung_AC_Modbus_Select *select)
+    // {
+    //   selects_.push_back(select);
+    //   select->set_modbus_controller(this);
+    // }
 
     void Samsung_AC_Modbus_Controller::on_nasa_message(const std::string& device_address, 
                                                        uint16_t message_number, 
@@ -113,27 +114,20 @@ namespace esphome
       
       if (it == register_map_.end())
       {
-        ESP_LOGVV(TAG, "No modbus components registered for device %s, NASA address 0x%04X", 
+        ESP_LOGVV(MODBUS_TAG, "No modbus components registered for device %s, NASA address 0x%04X", 
                   device_address.c_str(), message_number);
         return;
       }
 
-      ESP_LOGD(TAG, "Processing NASA message: device=%s, address=0x%04X, value=%.2f", 
+      ESP_LOGD(MODBUS_TAG, "Processing NASA message: device=%s, address=0x%04X, value=%.2f", 
                device_address.c_str(), message_number, value);
 
       // Process the message for all registered components
       for (auto *item : it->second)
       {
-        try
-        {
-          float processed_value = apply_register_config(value, item->get_config());
-          item->process_data(processed_value);
-          ESP_LOGVV(TAG, "Updated component: raw=%.2f, processed=%.2f", value, processed_value);
-        }
-        catch (const std::exception& e)
-        {
-          ESP_LOGE(TAG, "Error processing data for component: %s", e.what());
-        }
+        float processed_value = apply_register_config(value, item->get_config());
+        item->process_data(processed_value);
+        ESP_LOGVV(MODBUS_TAG, "Updated component: raw=%.2f, processed=%.2f", value, processed_value);
       }
     }
 
@@ -143,18 +137,18 @@ namespace esphome
     {
       if (samsung_ac_ == nullptr)
       {
-        ESP_LOGE(TAG, "Cannot write register - Samsung AC component not available");
+        ESP_LOGE(MODBUS_TAG, "Cannot write register - Samsung AC component not available");
         return;
       }
 
       Samsung_AC_Device *device = get_device(device_address);
       if (device == nullptr)
       {
-        ESP_LOGE(TAG, "Cannot write register - device %s not found", device_address.c_str());
+        ESP_LOGE(MODBUS_TAG, "Cannot write register - device %s not found", device_address.c_str());
         return;
       }
 
-      ESP_LOGD(TAG, "Writing register: device=%s, address=0x%04X, value=%.2f", 
+      ESP_LOGD(MODBUS_TAG, "Writing register: device=%s, address=0x%04X, value=%.2f", 
                device_address.c_str(), message_number, value);
 
       // Create a protocol request to send the value
@@ -173,17 +167,17 @@ namespace esphome
           request.target_temp = value;
           break;
         case 0x4006: // Fan mode
-          request.fanmode = static_cast<FanMode>(static_cast<int>(value));
+          request.fan_mode = static_cast<FanMode>(static_cast<int>(value));
           break;
         default:
           // For custom addresses, we need to use a different approach
-          ESP_LOGW(TAG, "Direct register write for address 0x%04X not implemented, value=%.2f", 
+          ESP_LOGW(MODBUS_TAG, "Direct register write for address 0x%04X not implemented, value=%.2f", 
                    message_number, value);
           return;
       }
 
       device->publish_request(request);
-      ESP_LOGD(TAG, "Register write request sent");
+      ESP_LOGD(MODBUS_TAG, "Register write request sent");
     }
 
     bool Samsung_AC_Modbus_Controller::validate_device_address(const std::string& address)
@@ -218,7 +212,7 @@ namespace esphome
           return result;
         }
         default:
-          ESP_LOGW(TAG, "Unsupported value type: %d", static_cast<int>(value_type));
+          ESP_LOGW(MODBUS_TAG, "Unsupported value type: %d", static_cast<int>(value_type));
           return static_cast<float>(raw_value);
       }
     }
@@ -242,7 +236,7 @@ namespace esphome
           return result;
         }
         default:
-          ESP_LOGW(TAG, "Unsupported value type: %d", static_cast<int>(value_type));
+          ESP_LOGW(MODBUS_TAG, "Unsupported value type: %d", static_cast<int>(value_type));
           return static_cast<uint32_t>(value);
       }
     }
