@@ -126,6 +126,9 @@ namespace esphome
       
       // Apply register configuration transformations
       float apply_register_config(float raw_value, const ModbusRegisterConfig& config);
+      
+    public:
+      // Public interface for modbus components
       float unapply_register_config(float processed_value, const ModbusRegisterConfig& config);
     };
 
