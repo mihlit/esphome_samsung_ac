@@ -41,6 +41,21 @@ namespace esphome
       FP32_R = 8
     };
 
+    // Type aliases for easier usage in generated code
+    constexpr ModbusRegisterType COIL = ModbusRegisterType::COIL;
+    constexpr ModbusRegisterType DISCRETE_INPUT = ModbusRegisterType::DISCRETE_INPUT;
+    constexpr ModbusRegisterType HOLDING = ModbusRegisterType::HOLDING;
+    constexpr ModbusRegisterType READ = ModbusRegisterType::READ;
+    
+    constexpr ModbusValueType U_WORD = ModbusValueType::U_WORD;
+    constexpr ModbusValueType S_WORD = ModbusValueType::S_WORD;
+    constexpr ModbusValueType U_DWORD = ModbusValueType::U_DWORD;
+    constexpr ModbusValueType S_DWORD = ModbusValueType::S_DWORD;
+    constexpr ModbusValueType U_DWORD_R = ModbusValueType::U_DWORD_R;
+    constexpr ModbusValueType S_DWORD_R = ModbusValueType::S_DWORD_R;
+    constexpr ModbusValueType FP32 = ModbusValueType::FP32;
+    constexpr ModbusValueType FP32_R = ModbusValueType::FP32_R;
+
     struct ModbusRegisterConfig
     {
       uint16_t address;                    // Modbus register address (maps to NASA message number)
