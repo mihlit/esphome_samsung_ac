@@ -16,7 +16,7 @@ CONFIG_SCHEMA = number.number_schema(
     ).extend({
         cv.Required(CONF_MIN_VALUE): cv.float_,
         cv.Required(CONF_MAX_VALUE): cv.float_,
-        cv.Required(CONF_STEP, default=1): cv.positive_float,
+        cv.Optional(CONF_STEP, default=1): cv.positive_float,
     })
 
 
