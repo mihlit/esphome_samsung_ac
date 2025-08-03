@@ -27,6 +27,12 @@ Samsung_AC_Climate = samsung_ac.class_("Samsung_AC_Climate", climate.Climate)
 Samsung_AC_CustClim = samsung_ac.class_("Samsung_AC_CustClim", climate.Climate)
 Samsung_AC_NumberDebug = samsung_ac.class_("Samsung_AC_NumberDebug", number.Number)
 
+# Modbus Controller classes
+Samsung_AC_Modbus_Controller = samsung_ac.class_("Samsung_AC_Modbus_Controller", cg.PollingComponent)
+Samsung_AC_Modbus_Sensor = samsung_ac.class_("Samsung_AC_Modbus_Sensor", sensor.Sensor)
+Samsung_AC_Modbus_Switch = samsung_ac.class_("Samsung_AC_Modbus_Switch", switch.Switch)
+Samsung_AC_Modbus_Number = samsung_ac.class_("Samsung_AC_Modbus_Number", number.Number)
+
 # not sure why select.select_schema did not work yet
 SELECT_MODE_SCHEMA = select.select_schema(Samsung_AC_Mode_Select)
 

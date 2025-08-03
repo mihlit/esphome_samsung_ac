@@ -1,0 +1,168 @@
+# Samsung AC Modbus Controller Example
+# This example shows how to use the Samsung AC modbus controller interface
+# to access Samsung AC devices using modbus register addresses mapped to NASA message numbers
+
+esphome:
+  name: samsung_ac_modbus_example
+  friendly_name: Samsung AC Modbus
+
+esp32:
+  board: m5stack-atom
+
+logger:
+  level: INFO
+
+# Standard Samsung AC configuration
+uart:
+  tx_pin: GPIO19
+  rx_pin: GPIO22
+  baud_rate: 9600
+  parity: EVEN
+
+# Import Samsung AC component
+external_components:
+  - source: github://brazoayeye/esphome_samsung_ac@main
+    components: [samsung_ac]
+  # Add your local modbus controller component
+  - source: 
+      type: local
+      path: components
+    components: [samsung_ac_modbus]
+
+# Configure Samsung AC with devices
+samsung_ac:
+  id: samsung_ac_main
+  devices:
+    - address: "20.00.00"  # Indoor unit address
+      climate:
+        name: "AC Climate"
+
+# Configure Samsung AC Modbus Controller
+samsung_ac_modbus:
+  id: modbus_controller
+  samsung_ac_id: samsung_ac_main
+  update_interval: 30s
+
+# Modbus Sensors - Read values using NASA message addresses
+sensor:
+  # Room temperature sensor using NASA message 0x4203
+  - platform: samsung_ac_modbus
+    name: "AC Room Temperature"
+    samsung_ac_modbus_controller_id: modbus_controller
+    register_address: 0x4203  # NASA message for room temperature
+    device_address: "20.00.00"
+    register_type: "read"
+    value_type: "S_WORD"
+    multiplier: 0.1  # Convert to Celsius (NASA sends in 0.1°C units)
+    unit_of_measurement: "°C"
+    device_class: "temperature"
+    state_class: "measurement"
+    accuracy_decimals: 1
+
+  # Target temperature sensor using NASA message 0x4201
+  - platform: samsung_ac_modbus
+    name: "AC Target Temperature"
+    samsung_ac_modbus_controller_id: modbus_controller
+    register_address: 0x4201  # NASA message for target temperature
+    device_address: "20.00.00"
+    register_type: "read"
+    value_type: "S_WORD"
+    multiplier: 0.1
+    unit_of_measurement: "°C"
+    device_class: "temperature"
+    state_class: "measurement"
+    accuracy_decimals: 1
+
+  # Custom sensor for power consumption (if available)
+  - platform: samsung_ac_modbus
+    name: "AC Power Consumption"
+    samsung_ac_modbus_controller_id: modbus_controller
+    register_address: 0x8413  # NASA message for power consumption
+    device_address: "10.00.00"  # Outdoor unit address
+    register_type: "read"
+    value_type: "U_WORD"
+    unit_of_measurement: "W"
+    device_class: "power"
+    state_class: "measurement"
+
+# Modbus Switches - Control boolean values
+switch:
+  # Power switch using NASA message 0x4000
+  - platform: samsung_ac_modbus
+    name: "AC Power"
+    samsung_ac_modbus_controller_id: modbus_controller
+    register_address: 0x4000  # NASA message for power on/off
+    device_address: "20.00.00"
+    register_type: "coil"
+    value_type: "U_WORD"
+
+# Modbus Numbers - Set numeric values like temperature
+number:
+  # Target temperature control using NASA message 0x4201
+  - platform: samsung_ac_modbus
+    name: "AC Target Temperature Control"
+    samsung_ac_modbus_controller_id: modbus_controller
+    register_address: 0x4201  # NASA message for target temperature
+    device_address: "20.00.00"
+    register_type: "holding"
+    value_type: "S_WORD"
+    multiplier: 10.0  # Convert from Celsius to NASA format (0.1°C units)
+    min_value: 16
+    max_value: 30
+    step: 0.5
+    unit_of_measurement: "°C"
+
+  # Mode control using NASA message 0x4001
+  - platform: samsung_ac_modbus
+    name: "AC Mode"
+    samsung_ac_modbus_controller_id: modbus_controller
+    register_address: 0x4001  # NASA message for mode
+    device_address: "20.00.00"
+    register_type: "holding"
+    value_type: "U_WORD"
+    min_value: 0
+    max_value: 6
+    step: 1
+    # Mode values: 0=Auto, 1=Cool, 2=Dry, 3=Fan, 4=Heat
+
+# NASA Message Reference:
+# Common NASA message numbers you can use as modbus register addresses:
+#
+# Device Control:
+# 0x4000 - Power (On/Off)
+# 0x4001 - Operation Mode (Auto/Cool/Heat/Dry/Fan)
+# 0x4006 - Fan Mode  
+# 0x4011 - Vertical Louver/Swing
+# 0x407e - Horizontal Louver/Swing
+# 0x4060 - Alt Mode (Special modes like Windfree)
+#
+# Temperature:
+# 0x4201 - Target Temperature (0.1°C units)
+# 0x4203 - Room Temperature (0.1°C units) 
+# 0x4237 - Water Tank Temperature (0.1°C units)
+# 0x8204 - Outdoor Temperature (0.1°C units)
+#
+# Sensors:
+# 0x4038 - Humidity (%)
+# 0x8413 - Power Consumption (W)
+# 0x8414 - Energy Consumption (kWh) 
+# 0x4427 - Energy Produced (kWh)
+# 0x4284 - Indoor Power Consumption (W)
+#
+# Use device addresses:
+# - "20.00.00", "20.00.01", etc. for indoor units
+# - "10.00.00" for outdoor unit
+# - Check your ESPHome logs for discovered device addresses
+
+# Register Types:
+# - "coil": For on/off values (1-bit)
+# - "discrete_input": For read-only on/off values
+# - "holding": For read/write registers (most common)
+# - "read": For read-only registers
+#
+# Value Types:
+# - "U_WORD": Unsigned 16-bit (0-65535)
+# - "S_WORD": Signed 16-bit (-32768 to 32767)
+# - "U_DWORD": Unsigned 32-bit 
+# - "S_DWORD": Signed 32-bit
+# - "FP32": 32-bit floating point 

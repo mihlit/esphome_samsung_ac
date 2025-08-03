@@ -528,6 +528,9 @@ namespace esphome
             }
             
             target->getValueForCustomClimate(source, (int16_t) message.messageNumber, message.value);
+            
+            // Notify modbus controllers about the message
+            target->notify_modbus_controllers(source, (uint16_t)message.messageNumber, (float)message.value);
 
             switch (message.messageNumber)
             {

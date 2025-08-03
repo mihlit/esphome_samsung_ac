@@ -15,6 +15,7 @@ namespace esphome
   {
     class NasaProtocol;
     class Samsung_AC_Device;
+    class Samsung_AC_Modbus_Controller;
 
     class Samsung_AC : public PollingComponent,
                        public uart::UARTDevice,
@@ -144,6 +145,20 @@ namespace esphome
         if (dev != nullptr)
           dev->update_custom_sensor(message_number, value);
       }
+
+      void /*MessageTarget::*/ notify_modbus_controllers(const std::string& device_address, uint16_t message_number, float value) override
+      {
+        for (auto *controller : modbus_controllers_)
+        {
+          controller->on_nasa_message(device_address, message_number, value);
+        }
+      }
+
+      // Register modbus controllers
+      void register_modbus_controller(Samsung_AC_Modbus_Controller *controller)
+      {
+        modbus_controllers_.push_back(controller);
+      }
       
       Samsung_AC_Device *find_device(const std::string address)
       {
@@ -159,6 +174,7 @@ namespace esphome
 
       std::map<std::string, Samsung_AC_Device *> devices_;
       std::set<std::string> addresses_;
+      std::vector<Samsung_AC_Modbus_Controller *> modbus_controllers_;
 
       std::queue<std::vector<uint8_t>> send_queue_;
       std::vector<uint8_t> data_;

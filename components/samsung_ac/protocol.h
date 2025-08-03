@@ -60,6 +60,8 @@ namespace esphome
             All = 3
         };
 
+        class Samsung_AC_Modbus_Controller; // Forward declaration
+
         class MessageTarget
         {
         public:
@@ -78,6 +80,8 @@ namespace esphome
             virtual optional<std::set<uint16_t>> get_custom_sensors(const std::string address) = 0;
             virtual void set_custom_sensor(const std::string address, uint16_t message_number, float value) = 0;
             virtual void getValueForCustomClimate(const std::string source, uint16_t messageNumber, long value) = 0;
+            // New method for modbus controller integration
+            virtual void notify_modbus_controllers(const std::string& device_address, uint16_t message_number, float value) = 0;
         };
 
         struct ProtocolRequest
