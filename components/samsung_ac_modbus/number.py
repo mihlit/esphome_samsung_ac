@@ -12,11 +12,12 @@ from . import (
 )
 
 CONFIG_SCHEMA = number.number_schema(
-    Samsung_AC_Modbus_Number,
-    min_value=0,
-    max_value=65535,
-    step=1
-).extend(MODBUS_COMPONENT_BASE_SCHEMA)
+    Samsung_AC_Modbus_Number).extend(MODBUS_COMPONENT_BASE_SCHEMA
+    ).extend({
+        cv.Required(CONF_MIN_VALUE): cv.float_,
+        cv.Required(CONF_MAX_VALUE): cv.float_,
+        cv.Required(CONF_STEP, default=1): cv.positive_float,
+    })
 
 
 async def to_code(config):
