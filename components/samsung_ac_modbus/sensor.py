@@ -7,7 +7,7 @@ from . import (
     Samsung_AC_Modbus_Controller,
     MODBUS_COMPONENT_BASE_SCHEMA,
     CONF_SAMSUNG_AC_MODBUS_CONTROLLER_ID,
-    setup_modbus_component,
+    setup_modbus_component_config,
     modbus_register_config_struct,
 )
 
@@ -28,5 +28,8 @@ async def to_code(config):
     # Get the modbus controller
     controller = await cg.get_variable(config[CONF_SAMSUNG_AC_MODBUS_CONTROLLER_ID])
     
-    # Setup the modbus component
-    await setup_modbus_component(var, config, controller) 
+    # Setup the modbus component configuration
+    await setup_modbus_component_config(var, config)
+    
+    # Register this sensor with the controller
+    cg.add(controller.register_sensor(var)) 

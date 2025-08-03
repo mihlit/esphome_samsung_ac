@@ -96,9 +96,9 @@ async def to_code(config):
     cg.add(samsung_ac.register_modbus_controller(var))
 
 
-# Helper function for component setup
-async def setup_modbus_component(var, config, controller_var):
-    """Common setup for modbus components"""
+# Helper function for component setup (without registration)
+async def setup_modbus_component_config(var, config):
+    """Common configuration setup for modbus components"""
     # Initialize the component with the config
     cg.add(var.set_register_address(config[CONF_REGISTER_ADDRESS]))
     cg.add(var.set_device_address(config[CONF_DEVICE_ADDRESS]))
@@ -106,12 +106,4 @@ async def setup_modbus_component(var, config, controller_var):
     cg.add(var.set_value_type(VALUE_TYPES[config[CONF_VALUE_TYPE]]))
     cg.add(var.set_multiplier(config[CONF_MULTIPLIER]))
     cg.add(var.set_offset(config[CONF_OFFSET]))
-    cg.add(var.set_bitmask(config[CONF_BITMASK]))
-    
-    # Register with the controller - use direct type checking
-    if var.type == Samsung_AC_Modbus_Sensor:
-        cg.add(controller_var.register_sensor(var))
-    elif var.type == Samsung_AC_Modbus_Switch:
-        cg.add(controller_var.register_switch(var))
-    elif var.type == Samsung_AC_Modbus_Number:
-        cg.add(controller_var.register_number(var)) 
+    cg.add(var.set_bitmask(config[CONF_BITMASK])) 
