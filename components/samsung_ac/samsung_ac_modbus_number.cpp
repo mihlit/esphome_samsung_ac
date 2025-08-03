@@ -5,7 +5,7 @@ namespace esphome
 {
   namespace samsung_ac
   {
-    static const char *const MODBUS_NUMBERT_AG = "samsung_ac.modbus_number";
+    static const char *const MODBUS_NUMBER_TAG = "samsung_ac.modbus_number";
 
     void Samsung_AC_Modbus_Number::setup()
     {
