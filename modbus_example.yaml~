@@ -51,6 +51,7 @@ sensor:
     samsung_ac_modbus_controller_id: modbus_controller
     register_address: 0x4203  # NASA message for room temperature
     device_address: "20.00.00"
+    register_type: "read"
     value_type: "S_WORD"
     multiplier: 0.1  # Convert to Celsius (NASA sends in 0.1°C units)
     unit_of_measurement: "°C"
@@ -64,6 +65,7 @@ sensor:
     samsung_ac_modbus_controller_id: modbus_controller
     register_address: 0x4201  # NASA message for target temperature
     device_address: "20.00.00"
+    register_type: "read"
     value_type: "S_WORD"
     multiplier: 0.1
     unit_of_measurement: "°C"
@@ -77,6 +79,7 @@ sensor:
     samsung_ac_modbus_controller_id: modbus_controller
     register_address: 0x8413  # NASA message for power consumption
     device_address: "10.00.00"  # Outdoor unit address
+    register_type: "read"
     value_type: "U_WORD"
     unit_of_measurement: "W"
     device_class: "power"
@@ -90,6 +93,7 @@ switch:
     samsung_ac_modbus_controller_id: modbus_controller
     register_address: 0x4000  # NASA message for power on/off
     device_address: "20.00.00"
+    register_type: "coil"
     value_type: "U_WORD"
 
 # Modbus Numbers - Set numeric values like temperature
@@ -100,6 +104,7 @@ number:
     samsung_ac_modbus_controller_id: modbus_controller
     register_address: 0x4201  # NASA message for target temperature
     device_address: "20.00.00"
+    register_type: "holding"
     value_type: "S_WORD"
     multiplier: 10.0  # Convert from Celsius to NASA format (0.1°C units)
     min_value: 16
@@ -113,6 +118,7 @@ number:
     samsung_ac_modbus_controller_id: modbus_controller
     register_address: 0x4001  # NASA message for mode
     device_address: "20.00.00"
+    register_type: "holding"
     value_type: "U_WORD"
     min_value: 0
     max_value: 6
