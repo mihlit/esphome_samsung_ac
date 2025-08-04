@@ -453,7 +453,7 @@ namespace esphome
             if (request.custom_number_message && request.custom_number_value)
             {
                 MessageSet custom_number((MessageNumber)request.custom_number_message.value());
-                custom_number.value = (long)(request.custom_number_value.value() * 10.0);  // Similar to target_temp scaling
+                custom_number.value = (long)(request.custom_number_value.value());  // Use raw value - scaling handled by multiply option
                 packet.messages.push_back(custom_number);
                 ESP_LOGI(TAG, "Pushing custom number %ld at 0x%X for %s", custom_number.value, request.custom_number_message.value(), address.c_str());
             }
@@ -542,16 +542,6 @@ namespace esphome
             {
                 float value = (float)message.value;
 
-                // Apply special scaling for known temperature sensors
-                if ((uint16_t)message.messageNumber == 0x4203) // VAR_in_temp_room_f
-                {
-                    value = (float)message.value / 10.0;
-                }
-                else if ((uint16_t)message.messageNumber == 0x8204) // VAR_out_sensor_airout
-                {
-                    value = (float)((int16_t)message.value) / 10.0;
-                }
-
                 target->set_custom_sensor(source, (uint16_t)message.messageNumber, value);
             }
             
@@ -562,7 +552,7 @@ namespace esphome
             
             if (custom_numbers && custom_numbers.value().find((uint16_t)message.messageNumber) != custom_numbers.value().end())
             {
-                target->set_custom_number(source, (uint16_t)message.messageNumber, (float)message.value / 10.0);  // Reverse the scaling applied on send
+                target->set_custom_number(source, (uint16_t)message.messageNumber, (float)message.value);  // Use raw value - scaling handled by multiply option
             }
             
             target->getValueForCustomClimate(source, (int16_t) message.messageNumber, message.value);
