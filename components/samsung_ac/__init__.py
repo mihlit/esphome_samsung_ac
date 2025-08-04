@@ -385,7 +385,11 @@ async def to_code(config):
 
         if CONF_DEVICE_CUSTOM_NUMBER in device:
             for cust_number in device[CONF_DEVICE_CUSTOM_NUMBER]:
-                number_device = await number.new_number(cust_number)
+                number_device = await number.new_number(cust_number,
+                        min_value=cust_number.get(CONF_MIN_VALUE, 0),
+                        max_value=cust_number.get(CONF_MAX_VALUE, 65535), 
+                        step=cust_number.get(CONF_STEP, 1)
+                        )
                 multiply_value = cust_number.get("multiply", 1.0)
                 cg.add(var_dev.add_custom_number(
                     cust_number[CONF_DEVICE_CUSTOM_NUMBER_MESSAGE], number_device, multiply_value))
