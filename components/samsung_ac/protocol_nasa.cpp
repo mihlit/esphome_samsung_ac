@@ -540,7 +540,19 @@ namespace esphome
             
             if (custom && custom.value().find((uint16_t)message.messageNumber) != custom.value().end())
             {
-                target->set_custom_sensor(source, (uint16_t)message.messageNumber, (float)message.value);
+                float value = (float)message.value;
+
+                // Apply special scaling for known temperature sensors
+                if ((uint16_t)message.messageNumber == 0x4203) // VAR_in_temp_room_f
+                {
+                    value = (float)message.value / 10.0;
+                }
+                else if ((uint16_t)message.messageNumber == 0x8204) // VAR_out_sensor_airout
+                {
+                    value = (float)((int16_t)message.value) / 10.0;
+                }
+
+                target->set_custom_sensor(source, (uint16_t)message.messageNumber, value);
             }
             
             if (custom_switches && custom_switches.value().find((uint16_t)message.messageNumber) != custom_switches.value().end())
@@ -557,33 +569,14 @@ namespace esphome
 
             switch (message.messageNumber)
             {
-            case MessageNumber::VAR_in_temp_room_f: //  unit = 'Celsius' from XML
-            {
-                double temp = (double)message.value / (double)10;
-                ESP_LOGW(TAG, "s:%s d:%s VAR_in_temp_room_f %f", source.c_str(), dest.c_str(), temp);
-                target->set_room_temperature(source, temp);
-                return;
-            }
-            case MessageNumber::VAR_in_temp_target_f: // unit = 'Celsius' from XML
-            {
-                double temp = (double)message.value / (double)10;
-                // if (value == 1) value = 'waterOutSetTemp'; //action in xml
-                ESP_LOGW(TAG, "s:%s d:%s VAR_in_temp_target_f %f", source.c_str(), dest.c_str(), temp);
-                target->set_target_temperature(source, temp);
-                return;
-            }
+
             case MessageNumber::ENUM_in_state_humidity_percent:
             {
                 // XML Enum no value but in Code it adds unit
                 ESP_LOGW(TAG, "s:%s d:%s ENUM_in_state_humidity_percent %li", source.c_str(), dest.c_str(), message.value);
                 return;
             }
-            case MessageNumber::ENUM_in_operation_power:
-            {
-                ESP_LOGW(TAG, "s:%s d:%s ENUM_in_operation_power %s", source.c_str(), dest.c_str(), message.value == 0 ? "off" : "on");
-                target->set_power(source, message.value != 0);
-                return;
-            }
+
             case MessageNumber::ENUM_in_operation_mode:
             {
                 ESP_LOGW(TAG, "s:%s d:%s ENUM_in_operation_mode %li", source.c_str(), dest.c_str(), message.value);
@@ -639,7 +632,6 @@ namespace esphome
             {
                 double temp = (double)((int16_t)message.value) / (double)10;
                 ESP_LOGW(TAG, "s:%s d:%s VAR_out_sensor_airout %li", source.c_str(), dest.c_str(), message.value);
-                target->set_outdoor_temperature(source, temp);
                 return;
             }
 

@@ -89,33 +89,41 @@ samsung_ac:
       #capabilities:
       #  horizontal_swing: false # This device have no h swing. 
 
-      # Creates climate control in Home Assistant. A climate control combines multiple of the controls below (like temperature, mode etc.)
-      #climate:
-      #  name: "Kitchen climate"
+      # Climate control has been removed - use custom_climate instead for more flexibility
 
-      # The controls directly below are all included in the climate control. Its adviced to only add the climate control and skip the extra controls.
-      #room_temperature:
-      #  name: "Kitchen temperature"
-      #target_temperature:
-      #  name: "Kitchen target temperature"
-      #power:
-      #  name: "Kitchen power"
-      #mode:
-      #  name: "Kitchen mode"
+      # You can add dedicated sensor/number/switch for specific protocol values:
+      sensor:
+        - name: "Room temperature"
+          message: 0x4203  # Room temperature
+        # - name: "Outdoor temperature"  # Should be used with outdoor device address
+        #   message: 0x8204  # Outdoor temperature
+        - name: "Room humidity"
+          message: 0x4038  # Room humidity (NASA only)
+        - name: "Warm water"
+          message: 0x4237  # Water temperature (NASA heatpumps only)
+
+        - name: Produced energy
+          message: 0x4427
+          device_class: energy
+          state_class: total_increasing
+          unit_of_measurement: kWh
+
+      switch:
+        - name: "Kitchen power"
+          message: 0x4000  # Main power switch
+
+      number:
+        - name: "Kitchen target temperature"
+          message: 0x4201  # Target temperature
+          min_value: 16
+          max_value: 30
+          step: 1
+          unit_of_measurement: "°C"
+          device_class: temperature
 
       # If your AC sits near or inside the ceiling, the reported room temperature is often a little bit heigher then whats 
       # measured below. This property can be used to correct that value.
       #room_temperature_offset: -1.4
-
-      # Only supported on NASA devices
-      #room_humidity:
-      #  name: "Kitchen humidity"
-
-      # Only supported on NASA based heatpumps
-      #water_temperature:
-      #  name: "Warm water"
-      #outdoor_temperature: # Should be used with outdoor device address
-      #  name: "Outdoor temperature"
       #power_consumption: # Should be used with outdoor device address
       #  name: "Power consumption"
       #energy_consumption: # Should be used with outdoor device address
@@ -152,7 +160,6 @@ samsung_ac:
               target_temperature: 1
               current_temperature: 0.1
 
-            
         - name: "Heating"
           status_addr: 0x4238
           set_addr: 0x4247
@@ -176,12 +183,6 @@ samsung_ac:
               target_temperature: 0.1
               current_temperature: 0.1
               
-      sensor:
-        - name: Produced energy
-          message: 0x4427
-          device_class: energy
-          state_class: total_increasing
-          unit_of_measurement: kWh
 
     - address: "10.00.00" # external unit
       sensor:
@@ -228,7 +229,7 @@ samsung_ac:
           state_class: measurement
           unit_of_measurement: RPM
           accuracy_decimals: 1
-      
+
       switch:
         - name: "Custom Feature Toggle"
           message: 0x1234
@@ -236,7 +237,7 @@ samsung_ac:
         - name: "Heat Pump Mode"
           message: 0x5678
           icon: "mdi:heat-pump"
-      
+
       number:
         - name: "Custom Temperature Setting"
           message: 0x9ABC

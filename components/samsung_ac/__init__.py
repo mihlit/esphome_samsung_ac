@@ -224,23 +224,8 @@ DEVICE_SCHEMA = (
             cv.GenerateID(CONF_DEVICE_ID): cv.declare_id(Samsung_AC_Device),
             cv.Optional(CONF_CAPABILITIES): CAPABILITIES_SCHEMA,
             cv.Required(CONF_DEVICE_ADDRESS): cv.string,
-            cv.Optional(CONF_DEVICE_ROOM_TEMPERATURE): sensor.sensor_schema(
-                unit_of_measurement=UNIT_CELSIUS,
-                accuracy_decimals=1,
-                device_class=DEVICE_CLASS_TEMPERATURE,
-                state_class=STATE_CLASS_MEASUREMENT,
-            ),
             cv.Optional(CONF_DEVICE_ROOM_TEMPERATURE_OFFSET): cv.float_,
-            cv.Optional(CONF_DEVICE_OUTDOOR_TEMPERATURE): sensor.sensor_schema(
-                unit_of_measurement=UNIT_CELSIUS,
-                accuracy_decimals=1,
-                device_class=DEVICE_CLASS_TEMPERATURE,
-                state_class=STATE_CLASS_MEASUREMENT,
-            ),
-            cv.Optional(CONF_DEVICE_TARGET_TEMPERATURE): NUMBER_SCHEMA,
-            cv.Optional(CONF_DEVICE_POWER): switch.switch_schema(Samsung_AC_Switch),
             cv.Optional(CONF_DEVICE_MODE): SELECT_MODE_SCHEMA,
-            cv.Optional(CONF_DEVICE_CLIMATE): CLIMATE_SCHEMA,
             cv.Optional(CONF_DEVICE_CUSTOM, default=[]): cv.ensure_list(CUSTOM_SENSOR_SCHEMA),
             cv.Optional(CONF_DEVICE_CUSTOM_SWITCH, default=[]): cv.ensure_list(CUSTOM_SWITCH_SCHEMA),
             cv.Optional(CONF_DEVICE_CUSTOM_NUMBER, default=[]): cv.ensure_list(CUSTOM_NUMBER_SCHEMA),
@@ -369,34 +354,9 @@ async def to_code(config):
 #            for alt in config[CONF_CAPABILITIES][CONF_ALT_MODES]:
 #                cg.add(var_dev.add_alt_mode(alt[CONF_ALT_MODE_NAME], alt[CONF_ALT_MODE_VALUE]))
 
-        if CONF_DEVICE_POWER in device:
-            conf = device[CONF_DEVICE_POWER]
-            sens = await switch.new_switch(conf)
-            cg.add(var_dev.set_power_switch(sens))
-
-        if CONF_DEVICE_ROOM_TEMPERATURE in device:
-            conf = device[CONF_DEVICE_ROOM_TEMPERATURE]
-            sens = await sensor.new_sensor(conf)
-            cg.add(var_dev.set_room_temperature_sensor(sens))
-
         if CONF_DEVICE_ROOM_TEMPERATURE_OFFSET in device:
             cg.add(var_dev.set_room_temperature_offset(
                 device[CONF_DEVICE_ROOM_TEMPERATURE_OFFSET]))
-
-        if CONF_DEVICE_OUTDOOR_TEMPERATURE in device:
-            conf = device[CONF_DEVICE_OUTDOOR_TEMPERATURE]
-            sens = await sensor.new_sensor(conf)
-            cg.add(var_dev.set_outdoor_temperature_sensor(sens))
-
-        if CONF_DEVICE_TARGET_TEMPERATURE in device:
-            conf = device[CONF_DEVICE_TARGET_TEMPERATURE]
-            conf[CONF_UNIT_OF_MEASUREMENT] = UNIT_CELSIUS
-            conf[CONF_DEVICE_CLASS] = DEVICE_CLASS_TEMPERATURE
-            num = await number.new_number(conf,
-                                          min_value=16.0,
-                                          max_value=30.0,
-                                          step=1.0)
-            cg.add(var_dev.set_target_temperature_number(num))
 
         if CONF_DEVICE_MODE in device:
             conf = device[CONF_DEVICE_MODE]
@@ -404,11 +364,7 @@ async def to_code(config):
             sel = await select.new_select(conf, options=values)
             cg.add(var_dev.set_mode_select(sel))
 
-        if CONF_DEVICE_CLIMATE in device:
-            conf = device[CONF_DEVICE_CLIMATE]
-            var_cli = cg.new_Pvariable(conf[CONF_ID])
-            await climate.register_climate(var_cli, conf)
-            cg.add(var_dev.set_climate(var_cli))
+
 
         if CONF_DEVICE_CUSTOM in device:
             for cust_sens in device[CONF_DEVICE_CUSTOM]:

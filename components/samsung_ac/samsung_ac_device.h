@@ -100,12 +100,7 @@ namespace esphome
       }
 
       std::string address;
-      sensor::Sensor *room_temperature{nullptr};
-      sensor::Sensor *outdoor_temperature{nullptr};
-      Samsung_AC_Number *target_temperature{nullptr};
-      Samsung_AC_Switch *power{nullptr};
       Samsung_AC_Mode_Select *mode{nullptr};
-      Samsung_AC_Climate *climate{nullptr};
       std::vector<Samsung_AC_Sensor> custom_sensors;
       std::vector<Samsung_AC_Custom_Switch> custom_switches;
       std::vector<Samsung_AC_Custom_Number> custom_numbers;
@@ -114,15 +109,7 @@ namespace esphome
 
       void getValueForCustomClimate(uint16_t address, long value);
 
-      void set_room_temperature_sensor(sensor::Sensor *sensor)
-      {
-        room_temperature = sensor;
-      }
 
-      void set_outdoor_temperature_sensor(sensor::Sensor *sensor)
-      {
-        outdoor_temperature = sensor;
-      }
 
       void add_custom_sensor(int message_number, sensor::Sensor *sensor)
       {
@@ -186,16 +173,7 @@ namespace esphome
         return numbers;
       }
 
-      void set_power_switch(Samsung_AC_Switch *switch_)
-      {
-        power = switch_;
-        power->write_state_ = [this](bool value)
-        {
-          ProtocolRequest request;
-          request.power = value;
-          publish_request(request);
-        };
-      }
+
 
       void set_mode_select(Samsung_AC_Mode_Select *select)
       {
@@ -208,16 +186,7 @@ namespace esphome
         };
       }
 
-      void set_target_temperature_number(Samsung_AC_Number *number)
-      {
-        target_temperature = number;
-        target_temperature->write_state_ = [this](float value)
-        {
-          ProtocolRequest request;
-          request.target_temp = value;
-          publish_request(request);
-        };
-      };
+
 
       void add_custom_climate(Samsung_AC_CustClim * clim, uint16_t status, uint16_t set, uint16_t enable, float setMin, float setMax) {
           clim->status = status;
@@ -254,147 +223,62 @@ namespace esphome
         clim->p[7] = p7;
       }
 
-      void set_climate(Samsung_AC_Climate *value)
-      {
-        climate = value;
-        climate->device = this;
-      }
-
-      void update_target_temperature(float value)
-      {
-        if (target_temperature != nullptr)
-          target_temperature->publish_state(value);
-        if (climate != nullptr)
-        {
-          climate->target_temperature = value;
-          climate->publish_state();
-        }
-      }
-
       optional<bool> _cur_power;
       optional<Mode> _cur_mode;
-
-      void update_power(bool value)
-      {
-        _cur_power = value;
-        if (power != nullptr)
-          power->publish_state(value);
-        if (climate != nullptr)
-          calc_and_publish_mode();
-      }
 
       void update_mode(Mode value)
       {
         _cur_mode = value;
         if (mode != nullptr)
           mode->publish_state_(value);
-        if (climate != nullptr)
-          calc_and_publish_mode();
       }
 
-      void update_fanmode(FanMode value)
-      {
-        if (climate != nullptr)
-        {
-          climate->fan_mode = fanmode_to_climatefanmode(value);
 
-          auto fanmode = fanmode_to_climatefanmode(value);
-          if (fanmode.has_value())
-          {
-            climate->fan_mode = fanmode;
-            climate->custom_fan_mode.reset();
-          }
-          else
-          {
-            climate->fan_mode.reset();
-            climate->custom_fan_mode = fanmode_to_custom_climatefanmode(value);
-          }
-          climate->publish_state();
-        }
-      }
 
-      void update_altmode(AltMode value)
-      {
-        if (climate != nullptr)
-        {
-          auto supported = get_supported_alt_modes();
-          auto mode = std::find_if(supported->begin(), supported->end(), [&value](const AltModeDesc &x)
-                                   { return x.value == value; });
-          if (mode == supported->end())
-          {
-            ESP_LOGW(TAG, "Unsupported alt_mode %d", value);
-            return;
-          }
 
-          auto preset = altmodename_to_preset(mode->name);
-          if (preset)
-          {
-            climate->preset = preset.value();
-            climate->custom_preset.reset();
-          }
-          else
-          {
-            climate->preset.reset();
-            climate->custom_preset = mode->name;
-          }
-          climate->publish_state();
-        }
-      }
 
-      void update_swing_vertical(bool value)
-      {
-        if (climate != nullptr)
-        {
-          climate->swing_mode = combine(climate->swing_mode, 1, value);
-          climate->publish_state();
-        }
-      }
 
-      void update_swing_horizontal(bool value)
-      {
-        if (climate != nullptr)
-        {
-          climate->swing_mode = combine(climate->swing_mode, 2, value);
-          climate->publish_state();
-        }
-      }
 
-      void update_room_temperature(float value)
-      {
-        if (room_temperature != nullptr)
-          room_temperature->publish_state(value + room_temperature_offset);
-        if (climate != nullptr)
-        {
-          climate->current_temperature = value + room_temperature_offset;
-          climate->publish_state();
-        }
-      }
 
-      void update_outdoor_temperature(float value)
-      {
-        if (outdoor_temperature != nullptr)
-          outdoor_temperature->publish_state(value);
-      }
 
       void update_custom_sensor(uint16_t message_number, float value)
       {
         for (auto &sensor : custom_sensors)
           if (sensor.message_number == message_number)
-            sensor.sensor->publish_state(value);
+          {
+            // Special handling for room temperature sensor (applies offset)
+            if (message_number == 0x4203) // VAR_in_temp_room_f
+            {
+              sensor.sensor->publish_state(value + room_temperature_offset);
+            }
+            else
+            {
+              sensor.sensor->publish_state(value);
+            }
+          }
       }
 
       void update_custom_switch(uint16_t message_number, bool value)
       {
         for (auto &custom_switch : custom_switches)
           if (custom_switch.message_number == message_number)
+          {
             custom_switch.switch_device->publish_state(value);
+            // Special handling for power switch (tracks state)
+            if (message_number == 0x4000) // ENUM_in_operation_power
+            {
+              _cur_power = value;
+            }
+          }
       }
 
       void update_custom_number(uint16_t message_number, float value)
       {
         for (auto &custom_number : custom_numbers)
           if (custom_number.message_number == message_number)
+          {
             custom_number.number_device->publish_state(value);
+          }
       }
 
       void publish_request(ProtocolRequest &request)
@@ -454,23 +338,7 @@ namespace esphome
         return swingmode_to_climateswingmode(static_cast<SwingMode>(value ? (swingMode | mask) : (swingMode & ~mask)));
       }
 
-      void calc_and_publish_mode()
-      {
-        if (!_cur_power.has_value())
-          return;
-        if (!_cur_mode.has_value())
-          return;
 
-        climate->mode = climate::ClimateMode::CLIMATE_MODE_OFF;
-        if (_cur_power.value() == true)
-        {
-          auto opt = mode_to_climatemode(_cur_mode.value());
-          if (opt.has_value())
-            climate->mode = opt.value();
-        }
-
-        climate->publish_state();
-      }
     };
   } // namespace samsung_ac
 } // namespace esphome

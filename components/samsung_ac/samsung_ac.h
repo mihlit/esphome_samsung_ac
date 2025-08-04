@@ -61,19 +61,7 @@ namespace esphome
 
       void /*MessageTarget::*/ publish_data(std::vector<uint8_t> &data);
 
-      void /*MessageTarget::*/ set_room_temperature(const std::string address, float value) override
-      {
-        Samsung_AC_Device *dev = find_device(address);
-        if (dev != nullptr)
-          dev->update_room_temperature(value);
-      }
 
-      void /*MessageTarget::*/ set_outdoor_temperature(const std::string address, float value) override
-      {
-        Samsung_AC_Device *dev = find_device(address);
-        if (dev != nullptr)
-          dev->update_outdoor_temperature(value);
-      }
 
       void /*MessageTarget::*/ getValueForCustomClimate(const std::string source, uint16_t messageNumber, long value) {
         Samsung_AC_Device *dev = find_device(source);
@@ -81,19 +69,7 @@ namespace esphome
 
       }
 
-      void /*MessageTarget::*/ set_target_temperature(const std::string address, float value) override
-      {
-        Samsung_AC_Device *dev = find_device(address);
-        if (dev != nullptr)
-          dev->update_target_temperature(value);
-      }
 
-      void /*MessageTarget::*/ set_power(const std::string address, bool value) override
-      {
-        Samsung_AC_Device *dev = find_device(address);
-        if (dev != nullptr)
-          dev->update_power(value);
-      }
 
       void /*MessageTarget::*/ set_mode(const std::string address, Mode mode) override
       {
