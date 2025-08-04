@@ -38,7 +38,7 @@ namespace esphome
       LOG_SWITCH("", "Samsung AC Modbus Switch", this);
       ESP_LOGCONFIG(MODBUS_SWITCH_TAG, "  Device Address: %s", config_.device_address.c_str());
       ESP_LOGCONFIG(MODBUS_SWITCH_TAG, "  Register Address: 0x%04X (NASA message)", config_.address);
-      ESP_LOGCONFIG(MODBUS_SWITCH_TAG, "  Register Type: %d", static_cast<int>(config_.register_type));
+
       ESP_LOGCONFIG(MODBUS_SWITCH_TAG, "  Value Type: %d", static_cast<int>(config_.value_type));
       
       if (config_.bitmask != 0xFFFFFFFF)

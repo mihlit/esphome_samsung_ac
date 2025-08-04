@@ -11,7 +11,7 @@ CONF_SAMSUNG_AC_ID = "samsung_ac_id"
 CONF_SAMSUNG_AC_MODBUS_CONTROLLER_ID = "samsung_ac_modbus_controller_id"
 CONF_REGISTER_ADDRESS = "register_address"
 CONF_DEVICE_ADDRESS = "device_address"
-CONF_REGISTER_TYPE = "register_type"
+
 CONF_VALUE_TYPE = "value_type"
 CONF_MULTIPLIER = "multiplier"
 CONF_OFFSET = "offset"
@@ -27,15 +27,6 @@ Samsung_AC_Modbus_Controller = samsung_ac_ns.class_("Samsung_AC_Modbus_Controlle
 Samsung_AC_Modbus_Sensor = samsung_ac_ns.class_("Samsung_AC_Modbus_Sensor", sensor.Sensor)
 Samsung_AC_Modbus_Switch = samsung_ac_ns.class_("Samsung_AC_Modbus_Switch", switch.Switch)
 Samsung_AC_Modbus_Number = samsung_ac_ns.class_("Samsung_AC_Modbus_Number", number.Number)
-
-# Enums
-ModbusRegisterType = samsung_ac_ns.enum("ModbusRegisterType")
-REGISTER_TYPES = {
-    "coil": ModbusRegisterType.COIL,
-    "discrete_input": ModbusRegisterType.DISCRETE_INPUT,
-    "holding": ModbusRegisterType.HOLDING,
-    "read": ModbusRegisterType.READ,
-}
 
 ModbusValueType = samsung_ac_ns.enum("ModbusValueType")
 VALUE_TYPES = {
@@ -55,7 +46,6 @@ def modbus_register_config_struct(conf):
     config_struct = cg.StructInitializer(
         samsung_ac_ns.struct("ModbusRegisterConfig"),
         ("address", conf[CONF_REGISTER_ADDRESS]),
-        ("register_type", REGISTER_TYPES[conf[CONF_REGISTER_TYPE]]),
         ("value_type", VALUE_TYPES[conf[CONF_VALUE_TYPE]]),
         ("device_address", conf[CONF_DEVICE_ADDRESS]),
         ("multiplier", conf.get(CONF_MULTIPLIER, 1.0)),
@@ -68,7 +58,6 @@ def modbus_register_config_struct(conf):
 MODBUS_COMPONENT_BASE_SCHEMA = cv.Schema({
     cv.Required(CONF_REGISTER_ADDRESS): cv.hex_int,
     cv.Required(CONF_DEVICE_ADDRESS): cv.string,
-    cv.Optional(CONF_REGISTER_TYPE, default="holding"): cv.enum(REGISTER_TYPES, lower=True),
     cv.Optional(CONF_VALUE_TYPE, default="U_WORD"): cv.enum(VALUE_TYPES, upper=True),
     cv.Optional(CONF_MULTIPLIER, default=1.0): cv.float_,
     cv.Optional(CONF_OFFSET, default=0.0): cv.float_,
@@ -102,7 +91,6 @@ async def setup_modbus_component_config(var, config):
     # Initialize the component with the config
     cg.add(var.set_register_address(config[CONF_REGISTER_ADDRESS]))
     cg.add(var.set_device_address(config[CONF_DEVICE_ADDRESS]))
-    cg.add(var.set_register_type(REGISTER_TYPES[config[CONF_REGISTER_TYPE]]))
     cg.add(var.set_value_type(VALUE_TYPES[config[CONF_VALUE_TYPE]]))
     cg.add(var.set_multiplier(config[CONF_MULTIPLIER]))
     cg.add(var.set_offset(config[CONF_OFFSET]))

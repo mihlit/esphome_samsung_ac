@@ -21,13 +21,7 @@ namespace esphome
     class Samsung_AC_Modbus_Number;
     // class Samsung_AC_Modbus_Select; // TODO: Implement when needed
 
-    enum class ModbusRegisterType : uint8_t
-    {
-      COIL = 1,
-      DISCRETE_INPUT = 2, 
-      HOLDING = 3,
-      READ = 4
-    };
+
 
     enum class ModbusValueType : uint8_t
     {
@@ -41,11 +35,7 @@ namespace esphome
       FP32_R = 8
     };
 
-    // Type aliases for easier usage in generated code
-    constexpr ModbusRegisterType COIL = ModbusRegisterType::COIL;
-    constexpr ModbusRegisterType DISCRETE_INPUT = ModbusRegisterType::DISCRETE_INPUT;
-    constexpr ModbusRegisterType HOLDING = ModbusRegisterType::HOLDING;
-    constexpr ModbusRegisterType READ = ModbusRegisterType::READ;
+
     
     constexpr ModbusValueType U_WORD = ModbusValueType::U_WORD;
     constexpr ModbusValueType S_WORD = ModbusValueType::S_WORD;
@@ -59,7 +49,6 @@ namespace esphome
     struct ModbusRegisterConfig
     {
       uint16_t address;                    // Modbus register address (maps to NASA message number)
-      ModbusRegisterType register_type;
       ModbusValueType value_type;
       std::string device_address;          // Samsung AC device address (e.g., "20.00.00")
       float multiplier = 1.0;

@@ -38,7 +38,7 @@ namespace esphome
       LOG_NUMBER("", "Samsung AC Modbus Number", this);
       ESP_LOGCONFIG(MODBUS_NUMBER_TAG, "  Device Address: %s", config_.device_address.c_str());
       ESP_LOGCONFIG(MODBUS_NUMBER_TAG, "  Register Address: 0x%04X (NASA message)", config_.address);
-      ESP_LOGCONFIG(MODBUS_NUMBER_TAG, "  Register Type: %d", static_cast<int>(config_.register_type));
+
       ESP_LOGCONFIG(MODBUS_NUMBER_TAG, "  Value Type: %d", static_cast<int>(config_.value_type));
       ESP_LOGCONFIG(MODBUS_NUMBER_TAG, "  Multiplier: %.3f", config_.multiplier);
       ESP_LOGCONFIG(MODBUS_NUMBER_TAG, "  Offset: %.3f", config_.offset);
