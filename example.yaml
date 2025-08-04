@@ -89,7 +89,7 @@ samsung_ac:
       #capabilities:
       #  horizontal_swing: false # This device have no h swing. 
 
-      # Climate control has been removed - use custom_climate instead for more flexibility
+      # Standard climate control has been removed - use the flexible climate configuration below
 
       # You can add dedicated sensor/number/switch for specific protocol values:
       sensor:
@@ -133,11 +133,11 @@ samsung_ac:
       #indoor_power_consumption: # Never seen on my setup
       #  name: "Indoor consumption"
 
-      # custom climate allow to define custom addresses and behaviour for many climate components
+      # Climate components allow to define custom addresses and behaviour for many climate entities
       # Addresses are more or less described on the file xlxs (link)
       # enabling debug_log_messages: true under the samsung_ac section, you can look at sent data directly from ESP web loger. 
       # Most of temperatura are in celsius with a /10 formula.
-      custom_climate:
+      climate:
         - name: "Water heater"
           status_addr: 0x4237 # mandatory address regarding status temperature
           set_addr: 0x4235    # mandatory address regarding setpoint temperature
