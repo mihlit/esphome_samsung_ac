@@ -176,7 +176,7 @@ samsung_ac:
               target_temperature: 0.1
               current_temperature: 0.1
               
-      custom_sensor:
+      sensor:
         - name: Produced energy
           message: 0x4427
           device_class: energy
@@ -184,7 +184,7 @@ samsung_ac:
           unit_of_measurement: kWh
 
     - address: "10.00.00" # external unit
-      custom_sensor:
+      sensor:
         - name: External temperature
           message: 0x8204
           device_class: temperature
@@ -228,4 +228,27 @@ samsung_ac:
           state_class: measurement
           unit_of_measurement: RPM
           accuracy_decimals: 1
+      
+      switch:
+        - name: "Custom Feature Toggle"
+          message: 0x1234
+          icon: "mdi:toggle-switch"
+        - name: "Heat Pump Mode"
+          message: 0x5678
+          icon: "mdi:heat-pump"
+      
+      number:
+        - name: "Custom Temperature Setting"
+          message: 0x9ABC
+          min_value: 10
+          max_value: 50
+          step: 1
+          icon: "mdi:thermometer"
+        - name: "Timer Duration"
+          message: 0xDEF0
+          min_value: 0
+          max_value: 480
+          step: 30
+          unit_of_measurement: "min"
+          icon: "mdi:timer"
 
