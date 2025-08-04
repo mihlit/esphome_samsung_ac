@@ -507,16 +507,11 @@ namespace esphome
             if (nonpacket_.cmd == NonNasaCommand::Cmd20)
             {
                 last_command20s_[nonpacket_.src] = nonpacket_.command20;
-                target->set_target_temperature(nonpacket_.src, nonpacket_.command20.target_temp);
-                target->set_room_temperature(nonpacket_.src, nonpacket_.command20.room_temp);
-                target->set_power(nonpacket_.src, nonpacket_.command20.power);
+                target->set_custom_number(nonpacket_.src, 0x4201, nonpacket_.command20.target_temp);
+                target->set_custom_sensor(nonpacket_.src, 0x4203, nonpacket_.command20.room_temp);
+                target->set_custom_switch(nonpacket_.src, 0x4000, nonpacket_.command20.power);
                 target->set_mode(nonpacket_.src, nonnasa_mode_to_mode(nonpacket_.command20.mode));
-                target->set_fanmode(nonpacket_.src, nonnasa_fanspeed_to_fanmode(nonpacket_.command20.fanspeed));
-                // TODO
-                target->set_altmode(nonpacket_.src, 0);
-                // TODO
-                target->set_swing_horizontal(nonpacket_.src, false);
-                target->set_swing_vertical(nonpacket_.src, false);
+                // Note: fanmode, altmode, and swing methods removed - use custom sensors/switches/numbers for these features
             }
             else if (nonpacket_.cmd == NonNasaCommand::CmdF8)
             {
