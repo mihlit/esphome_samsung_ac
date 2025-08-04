@@ -145,7 +145,11 @@ CUSTOM_SWITCH_SCHEMA = switch.switch_schema(Samsung_AC_Switch).extend({
 
 CUSTOM_NUMBER_SCHEMA = number.number_schema(Samsung_AC_Number).extend({
     cv.Required(CONF_DEVICE_CUSTOM_NUMBER_MESSAGE): cv.hex_int,
-})
+}).extend({
+        cv.Required(CONF_MIN_VALUE): cv.float_,
+        cv.Required(CONF_MAX_VALUE): cv.float_,
+        cv.Optional(CONF_STEP, default=1): cv.positive_float,
+    })
 
 
 def custom_sensor_schema(
