@@ -586,18 +586,6 @@ namespace esphome
             case MessageNumber::ENUM_in_fan_mode:
             {
                 ESP_LOGW(TAG, "s:%s d:%s ENUM_in_fan_mode %li", source.c_str(), dest.c_str(), message.value);
-                FanMode mode = FanMode::Unknown;
-                if (message.value == 0)
-                    mode = FanMode::Auto;
-                else if (message.value == 1)
-                    mode = FanMode::Low;
-                else if (message.value == 2)
-                    mode = FanMode::Mid;
-                else if (message.value == 3)
-                    mode = FanMode::High;
-                else if (message.value == 4)
-                    mode = FanMode::Turbo;
-                target->set_fanmode(source, mode);
                 return;
             }
             case MessageNumber::ENUM_in_fan_mode_real:
@@ -608,19 +596,16 @@ namespace esphome
             case MessageNumber::ENUM_in_alt_mode:
             {
                 ESP_LOGW(TAG, "s:%s d:%s ENUM_in_alt_mode %li", source.c_str(), dest.c_str(), message.value);
-                target->set_altmode(source, message.value);
                 return;
             }
             case MessageNumber::ENUM_in_louver_hl_swing:
             {
                 ESP_LOGW(TAG, "s:%s d:%s ENUM_in_louver_hl_swing %li", source.c_str(), dest.c_str(), message.value);
-                target->set_swing_vertical(source, message.value == 1);
                 return;
             }
             case MessageNumber::ENUM_in_louver_lr_swing:
             {
                 ESP_LOGW(TAG, "s:%s d:%s ENUM_in_louver_lr_swing %li", source.c_str(), dest.c_str(), message.value);
-                target->set_swing_horizontal(source, message.value == 1);
                 return;
             }
             case MessageNumber::VAR_in_temp_water_tank_f:

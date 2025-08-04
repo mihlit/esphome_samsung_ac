@@ -78,34 +78,6 @@ namespace esphome
           dev->update_mode(mode);
       }
 
-      void /*MessageTarget::*/ set_fanmode(const std::string address, FanMode fanmode) override
-      {
-        Samsung_AC_Device *dev = find_device(address);
-        if (dev != nullptr)
-          dev->update_fanmode(fanmode);
-      }
-
-      void /*MessageTarget::*/ set_altmode(const std::string address, AltMode altmode) override
-      {
-        Samsung_AC_Device *dev = find_device(address);
-        if (dev != nullptr)
-          dev->update_altmode(altmode);
-      }
-
-      void /*MessageTarget::*/ set_swing_vertical(const std::string address, bool vertical) override
-      {
-        Samsung_AC_Device *dev = find_device(address);
-        if (dev != nullptr)
-          dev->update_swing_vertical(vertical);
-      }
-
-      void /*MessageTarget::*/ set_swing_horizontal(const std::string address, bool horizontal) override
-      {
-        Samsung_AC_Device *dev = find_device(address);
-        if (dev != nullptr)
-          dev->update_swing_horizontal(horizontal);
-      }
-
       optional<std::set<uint16_t>> /*MessageTarget::*/ get_custom_sensors(const std::string address) override
       {
         Samsung_AC_Device *dev = find_device(address);

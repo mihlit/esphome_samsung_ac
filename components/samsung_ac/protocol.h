@@ -68,10 +68,6 @@ namespace esphome
             virtual void register_address(const std::string address) = 0;
 
             virtual void set_mode(const std::string address, Mode mode) = 0;
-            virtual void set_fanmode(const std::string address, FanMode fanmode) = 0;
-            virtual void set_altmode(const std::string address, AltMode altmode) = 0;
-            virtual void set_swing_vertical(const std::string address, bool vertical) = 0;
-            virtual void set_swing_horizontal(const std::string address, bool horizontal) = 0;
             virtual optional<std::set<uint16_t>> get_custom_sensors(const std::string address) = 0;
             virtual void set_custom_sensor(const std::string address, uint16_t message_number, float value) = 0;
             virtual optional<std::set<uint16_t>> get_custom_switches(const std::string address) = 0;
