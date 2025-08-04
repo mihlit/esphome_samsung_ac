@@ -87,6 +87,7 @@ namespace esphome
     {
       uint16_t message_number;
       Samsung_AC_Number *number_device;
+      float multiply;
     };
 
     class Samsung_AC_Device
@@ -150,16 +151,17 @@ namespace esphome
         return numbers;
       }
 
-      void add_custom_number(int message_number, Samsung_AC_Number *number_device)
+      void add_custom_number(int message_number, Samsung_AC_Number *number_device, float multiply = 1.0)
       {
         Samsung_AC_Custom_Number cust_number;
         cust_number.message_number = (uint16_t)message_number;
         cust_number.number_device = number_device;
-        cust_number.number_device->write_state_ = [this, message_number](float value)
+        cust_number.multiply = multiply;
+        cust_number.number_device->write_state_ = [this, message_number, multiply](float value)
         {
           ProtocolRequest request;
           request.custom_number_message = message_number;
-          request.custom_number_value = value;
+          request.custom_number_value = value / multiply;  // Reverse multiply when sending
           publish_request(request);
         };
         custom_numbers.push_back(std::move(cust_number));
@@ -277,7 +279,7 @@ namespace esphome
         for (auto &custom_number : custom_numbers)
           if (custom_number.message_number == message_number)
           {
-            custom_number.number_device->publish_state(value);
+            custom_number.number_device->publish_state(value * custom_number.multiply);
           }
       }
 

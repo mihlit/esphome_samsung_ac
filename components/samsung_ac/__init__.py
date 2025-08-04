@@ -149,6 +149,7 @@ CUSTOM_NUMBER_SCHEMA = number.number_schema(Samsung_AC_Number).extend({
         cv.Required(CONF_MIN_VALUE): cv.float_,
         cv.Required(CONF_MAX_VALUE): cv.float_,
         cv.Optional(CONF_STEP, default=1): cv.positive_float,
+        cv.Optional("multiply", default=1.0): cv.float_,
     })
 
 
@@ -385,8 +386,9 @@ async def to_code(config):
         if CONF_DEVICE_CUSTOM_NUMBER in device:
             for cust_number in device[CONF_DEVICE_CUSTOM_NUMBER]:
                 number_device = await number.new_number(cust_number)
+                multiply_value = cust_number.get("multiply", 1.0)
                 cg.add(var_dev.add_custom_number(
-                    cust_number[CONF_DEVICE_CUSTOM_NUMBER_MESSAGE], number_device))
+                    cust_number[CONF_DEVICE_CUSTOM_NUMBER_MESSAGE], number_device, multiply_value))
 
         for key in CUSTOM_SENSOR_KEYS:
             if key in device:
